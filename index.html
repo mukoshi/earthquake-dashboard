@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://api-maps.yandex.com/2.1/?lang=en_US"></script>
+  <script src="https://api.orhanaydogdu.com.tr/deprem/kandilli/live"></script>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <title>Deprem Hasar Tespit Sistemi</title>
+  <style>
+    /* Add some basic styling for the map container (CSS)*/
+    body {
+      font-family: Arial;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    #mydiv {
+      width: 75%;
+      height: 62.4%;
+      position: absolute;
+      z-index: 9;
+      background-color: #f1f1f1;
+      text-align: center;
+      border: 1px solid #d3d3d3;
+      top: 31.2%;
+      left: 49.9999%;
+      transform: translate(-50%, -50%);
+      border-radius: 10px;
+    }
+    #mydivhead {
+      padding: 15px;
+      cursor: move;
+      z-index: 10;
+      background-color: #f1f1f1;
+      color: #000000;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    .container {
+      border: 4px solid #f1f1f1;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      cursor: move;
+      z-index: 20;
+    }
+    .top {
+      padding: 0px;
+      background: #f1f1f1;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      cursor: move;
+    }
+    .content {
+      padding: 0px;
+      cursor: move;
+      z-index: 20;
+    }
+    }
+
+    #bdiv {
+      width: 12.5%;
+      height: 100%;
+      position: absolute;
+      z-index: 1;
+      background-color: #ffffff;
+      text-align: center;
+      border: 1px solid #d3d3d3;
+      top: 0%;
+      left: 0%;
+      border-radius: 10px;
+      max-height: 100%;
+    }
+    #bdivhead {
+      padding: 15px;
+      cursor: move;
+      z-index: 1;
+      background-color: #f1f1f1;
+      color: #000000;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    .container1 {
+      border: 4px solid #ffffff;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      cursor: move;
+      z-index: 1;
+    }
+    .content1 {
+      padding: 0px;
+      cursor: move;
+      z-index: 1;
+    }
+    }
+    #bdivcontent {
+    font-size: 6px;
+    }
+    #bdivcontent table {
+        font-size: 12px;
+    }
+
+
+    #newdiv {
+      width: 12.5%;
+      height: 100%;
+      position: absolute;
+      z-index: 9;
+      background-color: rgb(255, 255, 240);
+      text-align: center;
+      border: 1px solid #d3d3d3;
+      top: 0%;
+      left: 87.51%;
+      border-radius: 10px;
+      overflow-y: auto;
+      max-height: 100%;
+    }
+    #newdivhead {
+      padding: 15px;
+      cursor: move;
+      z-index: 10;
+      background-color: #f1f1f1;
+      color: #000000;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    .container2 {
+      border: 4px solid rgb(255, 255, 240);
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      cursor: move;
+      z-index: 10;
+    }
+    .content2 {
+      padding: 0px;
+      cursor: move;
+      z-index: 10;
+    }
+    }
+
+
+    #cdiv {
+      width: 75%;
+      height: 34.6%;
+      position: absolute;
+      z-index: 9;
+      background-color: #ffffff;
+      text-align: center;
+      /*border: 1px solid #d3d3d3;*/
+      top: 65.4%;
+      left: 12.499999%;
+      border-radius: 10px;
+    }
+    #cdivhead {
+      padding: 15px;
+      cursor: move;
+      z-index: 10;
+      background-color: #f1f1f1;
+      color: #000000;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    .container3 {
+      border: 4px solid #ffffff;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      cursor: move;
+      z-index: 10;
+      display: flex;
+      justify-content: flex-start;
+      gap: 10px;
+    }
+    .content3 {
+      padding: 0px;
+      cursor: move;
+      z-index: 10;
+      width: 60%;
+      height: 100%;
+      display: flex;
+    }
+    }
+
+
+    #earthquakeDetails {
+    display: none;
+    position: fixed;
+    background-color: white;
+    border: 1px solid black;
+    padding: 5px;
+    z-index: 1;
+    top: -5px;
+    right: 2%;
+    font-size: 12px;
+    }
+    #slopeChartContainer {
+  width: 700px;
+  height: 200px;
+  position: relative;
+  text-align: right;
+  float: right;
+  right: -30%;
+    }
+    #chart_div {
+      width: 700px;
+      height: 200px;
+      position: relative;
+      text-align: right;
+      float: right;
+      right: -30%;
+    }
+    #chart_div2 {
+      width: 700px;
+      height: 200px;
+      position: relative;
+      text-align: right;
+      float: right;
+      right: -30%;
+    }
+    #path {
+            background-color: rgb(0, 0, 255); /* Mavi overlay rengi (şeffaflık ile) */
+            fill: rgba(0, 0, 255, 0.596);
+    }
+    #mehmet {
+      text-align: center;
+    }
+
+
+.tab {
+  overflow: hidden;
+  width: auto;
+  display: flex;
+  gap: 5px;
+  height: 56.5px;
+}
+.tab button {
+  background-color: inherit;
+  display: flex; /* Change to block */
+  color: black;
+  width: calc(30% - 600px);
+  padding: 22px 16px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  text-align: left;
+  transition: 0.3s;
+  margin: 0 0 5px 0;
+  margin-top: 5px;
+}
+.tab button:hover {
+  background-color: #ddd;
+}
+.tab button.active {
+  background-color: #ccc;
+}
+.tab button.tablinks {
+  background-color: #eee;
+  display: flex;
+  color: 444;
+  width: calc(30% - 6px);
+  padding: 18px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  text-align: left;
+  transition: 0.4s;
+  margin: 0 0 5px 0;
+  margin-top: 0px;
+  width: 100%;
+}
+.tab button.tablinks:hover {
+  background-color: #ccc;
+}
+
+.accordion {
+        background-color: #eee;
+        cursor: pointer;
+        color: #444;
+        padding: 18px;
+        width: 100%;
+        text-align: left;
+        border: none;
+        outline: none;
+        transition: 0.4s;
+}       
+.active, .accordion:hover {
+        background-color: #ccc;
+}
+.panel {
+        padding: 0 18px;
+        background-color: white;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.2s ease-out;
+}
+.accordion:before {
+      /*content: '\02795'; /* Unicode character for "plus" sign (+) */
+      font-size: 8px;
+      color: #777;
+      float: right;
+      margin-left: 5px;
+}/*
+.active:after {
+      /*content: "\2796"; /* Unicode character for "minus" sign (-) 
+}*/
+
+.details {
+        font-size: 6px;
+}
+
+.tabcontent {
+  display: none;
+  padding: 12px;
+  border: none;
+  width: calc(35% - 20px);
+  border-left: none;
+  height: 25%;
+  right: 150%;
+  margin-right: 50%;
+  max-height: 280;
+}
+.tabcontent-wrapper {
+  display: flex;
+  max-height: 200;
+}
+.tabcontent-right {
+    flex: 1;
+    right: 2550%;
+}
+
+.switch {
+  display: block;
+  top: 696px;
+  border:#777;
+  border-radius: 25px;
+  border-style: solid;
+  --width-of-switch: 3.5em;
+  --height-of-switch: 2em;
+  /* size of sliding icon -- sun and moon */
+  --size-of-icon: 1.4em;
+  /* it is like a inline-padding of switch */
+  --slider-offset: 0.3em;
+  position: relative;
+  z-index: 15;
+  width: var(--width-of-switch);
+  height: var(--height-of-switch);
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ffffff;
+  transition: .4s;
+  border-radius: 30px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: var(--size-of-icon,1.4em);
+  width: var(--size-of-icon,1.4em);
+  border-radius: 20px;
+  left: var(--slider-offset,0.3em);
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(40deg,#ff0080,#ff8c00 70%);
+  ;
+ transition: .4s;
+}
+input:checked + .slider {
+  background-color: #303136;
+}
+input:checked + .slider:before {
+  left: calc(100% - (var(--size-of-icon,1.4em) + var(--slider-offset,0.3em)));
+  background: #303136;
+  /* ay sembolüne çevirme  */
+  box-shadow: inset -3px -2px 5px -2px #8983f7, inset -10px -4px 0 0 #a3dafb;
+}
+legend {text-align:center; right:-500px;}
+  </style>
+</head>
+<body>
+  
+<label class="switch" onclick="toggleBackground()"> 
+  <input id="backgroundSwitch" type="checkbox">
+  <span class="slider"></span>
+</label>
+
+
+  
+  
+    
+  <div id="mydiv">
+    <div class="container">
+      <div class="top">
+      </div>
+    <div class = "content">
+    <div id="mydivhead"> </div>
+  </div>
+  </div>
+  </div>
+
+  <div id="newdiv">
+    <div class="container1">
+      <div class="top">
+      </div>
+    <div class = "content1">
+    <div id="newdivhead">Son Depremler</div>
+    <div id="bdivcontent">
+        <!-- Bu kısma API'den gelen deprem bilgileri eklenecek -->
+    </div>
+    <div id="earthquakeDetails" class="details"></div>
+  </div>
+  </div>
+  </div>
+
+  <div id="bdiv">
+    <div class="container2">
+      <div class="top">
+      </div>
+    <div class = "content2">
+    <div id="bdivhead">Cihaz Verileri</div>
+    <button class="accordion" onclick="toggleSecondaryMap()">Cihaz 1: Ağır Hasarlı</button>
+    <div id="secondaryMapContainer" style="display:none;">
+        <div id="secondaryMap" style="width: 234.3.4px; height: 400px;"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div id="cdiv">
+    <div class="container3">
+        <div class="top"></div>
+        <div class="content3">
+            <div id="cdivhead">Cihaz Grafikleri</div>
+            <div class="tabcontent-wrapper">
+                    <div class="tab">
+                        <button class="tablinks" onclick="goodtry(event, 'device1')">Cihaz 1</button>
+                    </div>
+                <div id="device1" class="tabcontent" style="float: left; right: 150%;">
+                  <div id="mehmet" style="float: right; margin-right: -150px; z-index: 10;">
+                    <legend><h3>Cihaz 1</h3></legend></div>
+                    <!-- <p>Şu an ölçülen eğim: 130 derece (Ağır hasarlı)</p>-->
+                    <div id="chart_div" style="right: -320px; top: 60px;"></div>
+                    <div id="chart_div2" style="right: -320px; top: 165px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+  <script>
+    ymaps.ready(init);
+    function init() {
+      var myMap = new ymaps.Map("mydiv", {
+        center: [38.3575, 31.4164],
+        zoom: 13
+      });
+      
+      // Farklı binalara placemark ekleme
+      let buildings = [
+        {coordinates: [38.3575, 31.4164], color: 'red', doorNumber: '12A', neighborhood: 'Example Neighborhood'},
+        {coordinates: [38.35, 31.42], color: 'green', doorNumber: '34B', neighborhood: 'Another Neighborhood'},
+        {coordinates: [38.36, 31.41], color: 'green', doorNumber: '56C', neighborhood: 'Yet Another Neighborhood'},
+        {coordinates: [38.365, 31.418], color: 'green', doorNumber: '78D', neighborhood: 'Even More Neighborhood'},
+        {coordinates: [38.355, 31.419], color: 'green', doorNumber: '90E', neighborhood: 'Final Neighborhood'}
+      ];
+      
+      buildings.forEach(building => {
+        var placemark = new ymaps.Placemark(building.coordinates, {}, {
+          preset: 'islands#icon',
+          iconColor: building.color
+        });
+        
+        // Kutucuk içinde bina bilgileri gösterimi
+        placemark.events.add('mouseenter', function (e) {
+          zas = 0.006 //yükseklik değerine eklenecek miktar
+          var coords = e.get('target').geometry.getCoordinates(); //o yerin koordinatlarını alma
+          var target = e.get('target');
+          var balloonContent = 'Coordinates: ' + coords + '<br/>' +
+                              'Door Number: ' + building.doorNumber + '<br/>' +
+                              'Neighborhood: ' + building.neighborhood;
+
+
+          var zoomLevel = myMap.getZoom(); //Zoom miktarını alma
+          console.log(zoomLevel)
+          if (zoomLevel == 15) { zas = 0.002} else
+          if (zoomLevel == 14) { zas = 0.004} else
+          if (zoomLevel == 16) { zas = 0.0005} else
+          if (zoomLevel == 17) { zas = 0.0003} else
+          if (zoomLevel == 18) { zas = 0.00015} else
+          if (zoomLevel == 19) { zas = 0.00010} else
+          if (zoomLevel == 20) { zas = 0.00005} else
+          if (zoomLevel == 21) { zas = 0.00003} 
+          
+          var coords = [coords[0] + zas, coords[1]];
+
+          myMap.balloon.open(coords, balloonContent);
+        });
+
+        placemark.events.add('mouseleave', function (e) { //mouseleave gerçekleştiğinde kutu gösteriminin sona ermesi
+          myMap.balloon.close();
+        });
+
+        myMap.geoObjects.add(placemark);
+      });
+      
+    }
+    </script>
+  <script>
+    // Oynatılabilir div sistemi
+    dragElement(document.getElementById("mydiv"), document.getElementById("mydivhead"));
+    dragElement(document.getElementById("bdiv"), document.getElementById("bdivhead"));
+    dragElement(document.getElementById("newdiv"), document.getElementById("newdivhead"));
+    dragElement(document.getElementById("cdiv"), document.getElementById("cdivhead"));
+    
+    function dragElement(elmnt, dragHeader) {
+      var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+      dragHeader.onmousedown = dragMouseDown;
+    
+      function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // imlecin yerini al
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        // imleç hareket ettiğinde fonksiyonu çağır
+        document.onmousemove = elementDrag;
+      }
+    
+      function elementDrag(e) {
+        e = e || window.event; //hareket ettiğinde
+        e.preventDefault();
+        // imlecin yeni yerini al
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        // div'in koyulacağı yeni yeri belirleme
+        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+      }
+    
+      function closeDragElement() {
+        /* imleç hareketi durduğunda div hareketi kesilmesi*/
+        document.onmouseup = null;
+        document.onmousemove = null;
+      }
+    }
+  </script>
+  <script>
+  var request = new XMLHttpRequest();
+  request.open("GET", "https://api.orhanaydogdu.com.tr/deprem/kandilli/live", true);
+  request.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        var response = JSON.parse(request.responseText);
+        var earthquakeList = response.result;
+
+        // Deprem bilgilerinin girilmesi için table oluştur
+        var earthquakeText = "<table>";
+        earthquakeList.forEach(function(earthquake, index) {
+            var date = earthquake.date.split(" ")[0]; // Date kısmını kes
+            var time = earthquake.date.split(" ")[1]; // Time kısmını kes
+            earthquakeText += "<tr>";
+            earthquakeText += "<td>" + "\n\n" + " " +
+                    "\n<span onmouseover=\"showDetails(this, '" + earthquake.depth + "','" + earthquake.mag + "','" + earthquake.date + "')\" onmouseout=\"hideDetails(this)\">" + earthquake.title + "</span></td><td></td>";
+            earthquakeText += "</tr>";
+            if (index < earthquakeList.length - 1) {
+        earthquakeText += "<tr><td colspan='8'></td></tr>";
+    }
+        });
+        earthquakeText += "</table>";
+
+        // Tabloyu bdiv içine yerleştir
+        document.getElementById("bdivcontent").innerHTML = earthquakeText;
+    }
+};
+request.send();
+
+function showDetails(element, depth, mag, date) {
+    var details = "Derinlik: " + depth + " km<br>";
+    details += "Büyüklük: " + mag + "<br>";
+    details += "Tarih: " + date;
+    var detailsDiv = document.getElementById("earthquakeDetails");
+    detailsDiv.innerHTML = details;
+    detailsDiv.style.display = "block";
+    // Bilgilerin gösterileceği kutunun konumunu hesaplama
+    var mouseY = event.clientY; 
+    detailsDiv.style.top = (mouseY - 58) + "px";
+    detailsDiv.style.left = element.offsetRight + "px";
+}
+
+function hideDetails(element) {
+    document.getElementById("earthquakeDetails").style.display = "none";
+}
+    </script>
+  <script>
+    var secondaryMapShown = false; // secondarymap'in gösterilip gösterilmediğini saklama
+    var secondaryMap; // secondmap'i saklayacak obje
+    var secondaryMapPlacemark;
+
+    // secondarymap'in açılması için fonksiyon
+    function toggleSecondaryMap() {
+      if (!secondaryMapShown) {
+        // Eğer gösterilmiyorsa göstermeye başla
+        document.getElementById('secondaryMapContainer').style.display = 'block';
+        secondaryMap = new ymaps.Map("secondaryMap", {
+          center: [38.3575, 31.4164],
+          zoom: 17.5
+        });
+        let building = {coordinates: [38.3575, 31.4164], color: 'red', doorNumber: '12A', neighborhood: 'Example Neighborhood'}
+        var placemark = new ymaps.Placemark(building.coordinates, {}, {
+          preset: 'islands#icon',
+          iconColor: building.color
+        });
+        
+        // Bilginin kutu içerisinde gösterimi
+        placemark.events.add('mouseenter', function (e) {
+          var coords = e.get('target').geometry.getCoordinates();
+          var target = e.get('target');
+          var balloonContent = 'Coordinates: ' + coords + '<br/>' +
+                              'Door Number: ' + building.doorNumber + '<br/>' +
+                              'Neighborhood: ' + building.neighborhood;
+          secondaryMap.balloon.open(coords, balloonContent);
+        });
+
+        placemark.events.add('mouseleave', function (e) {
+          secondaryMap.balloon.close();
+        });
+
+        secondaryMap.geoObjects.add(placemark);
+        secondaryMapShown = true;
+      } else {
+        // Eğer gösteriliyorsa yok et
+        document.getElementById('secondaryMapContainer').style.display = 'none';
+        secondaryMapShown = false;
+        if (secondaryMap) {
+          secondaryMap.destroy(); // Map objesini sıfırla
+          secondaryMap = null;
+        }
+      }
+    }
+  </script>
+  <script>
+    function openCity(evt, cityName) {
+  // değişkenleri tanımla
+  var i, tabcontent, tablinks;
+
+  // tabcontent içeriğinde bulunan tüm elementleri gizle
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+
+  // tablinks içeriğinde bulunan tüm elementlerin "active" class'ını yok et
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+
+  // Güncel pencereyi göster ve açılan pencereyi "active" class olarak ekle
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+function toggleTabContent(tabName) {
+  var tab = document.getElementById(tabName);
+  if (tab.style.display == "block") {
+    tab.style.display = "none";
+  } else {
+    tab.style.display = "block";
+  }
+}
+var activeTab = null; // Aktif pencereyi saklayacak değişken
+
+function goodtry(evt, data1) {
+  var cdiv = document.getElementById('cdiv');
+    if (activeTab !== data1) {
+        // Eğer tıklanılan pencere açık olan pencereden farklıysa
+        if (activeTab) {
+            // Eğer açık olan pencereye tıklanmışsa pencereyi gizle
+            document.getElementById(activeTab).style.display = "none";
+        }
+        // Tıklanan pencereyi göster
+        document.getElementById(data1).style.display = "block";
+        activeTab = data1; // Update activetab
+        cdiv.style.height = "100%";
+        cdiv.style.top = "0%";
+    } else {
+        // Tıklanan pencere açık olan pencere ile aynı isimde ise gizle
+        document.getElementById(data1).style.display = "none";
+        activeTab = null; // Aktif pencereyi sıfırla
+        cdiv.style.height = "";
+        cdiv.style.top = "";
+    }
+}
+google.charts.load('current', {packages: ['corechart', 'line']});
+google.charts.setOnLoadCallback(drawLogScales);
+function drawLogScales() {
+      // Boş bir DataTable oluştur
+      var data1 = new google.visualization.DataTable();
+      var data2 = new google.visualization.DataTable();
+    // Sütunları ekle
+    data1.addColumn('string', 'Zaman');
+    data1.addColumn('number', 'Sıcaklık');
+    data2.addColumn('string', 'Zaman');
+    data2.addColumn('number', 'Eğim');
+
+      // Grafiğin ayarları
+      var options1 = {
+        hAxis: {
+          title: 'Zaman',
+          logScale: true,textStyle: {
+            fontSize: 10 
+          },
+        },
+        vAxis: {
+          title: 'Sıcaklık',
+          logScale: true,
+          viewWindow: {
+            min: -30,
+            max: 100,
+          },
+          gridlines: {
+            color: '#f3f3f3'  // Arka plan gridline rengi
+          }
+        },
+        colors: ['#F93F0B'],
+        width: 1000,
+        height: 200
+      };
+      var options2 = {
+        hAxis: {
+          title: 'Zaman',
+          logScale: true,textStyle: {
+            fontSize: 10 
+          },
+        },
+        vAxis: {
+          title: 'Eğim (Açı)',
+          logScale: true,
+          viewWindow: {
+            min: 0,
+            max: 360,
+          },
+          gridlines: {
+            color: '#f3f3f3' 
+          }
+        },
+        colors: ['#a784ff'],
+        width: 1000,
+        height: 200
+      };
+
+      // Grafik nesnesini oluştur
+      var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+      var chart2 = new google.visualization.LineChart(document.getElementById('chart_div2'));
+
+      // Veri dizisi
+      var dataArray = [];
+      var dataArray2 = [];
+      var counter = 0;
+      var counter2 = 0;
+
+      function getCurrentTimeString() {
+        var now = new Date();
+        return now.getHours().toString().padStart(2, '0') + ':' +
+               now.getMinutes().toString().padStart(2, '0') + ':' +
+               now.getSeconds().toString().padStart(2, '0');
+      }
+
+      // Her saniye veri güncelleme işlevi
+      function updateData() {
+        // Yeni veri al
+        fetch('http://localhost:8000/info.json')
+          .then(response => response.json())
+          .then(newData => {
+            // Veriyi diziye ekle
+            console.log(newData.derece);
+            var currentTime = getCurrentTimeString();
+            dataArray.push([currentTime, newData.derece]);
+            dataArray2.push([currentTime, newData.egim]);
+            counter++;
+            counter2++;
+            if (dataArray.length > 10) { dataArray.shift(); data1 = new google.visualization.DataTable();
+            data1.addColumn('string', 'Zaman');
+            data1.addColumn('number', 'Sıcaklık'); }; 
+            if (dataArray2.length > 10) { dataArray2.shift(); data2 = new google.visualization.DataTable();
+            data2.addColumn('string', 'Zaman');
+            data2.addColumn('number', 'Eğim'); }; 
+            if (counter > 10) { counter = 0; data1 = new google.visualization.DataTable();
+            data1.addColumn('string', 'Zaman');
+            data1.addColumn('number', 'Sıcaklık'); };
+            
+            data1.addRows(dataArray);
+            data2.addRows(dataArray2);
+            
+            chart.draw(data1, options1);
+            chart2.draw(data2, options2);
+          })
+          .catch(error => console.error('Hata:', error));
+      }
+
+      // Her saniye veri güncelleme işlevini çağır
+      setInterval(updateData, 1000);
+    }
+
+  </script>
+    <script>
+function toggleBackground() {
+  var backgroundSwitch = document.getElementById("backgroundSwitch");
+  var divElements = document.querySelectorAll("#mydiv, #bdiv, table, #newdiv, #cdiv, #earthquakeDetails");
+  var heds = document.querySelectorAll("#bdivhead, #newdivhead, #cdivhead, #mydivhead");
+  var slop = document.querySelectorAll("#slopeChart");
+  var divElements2 = document.querySelectorAll("table");
+  // Renkleri değiştirme fonksiyonu
+  function changeColors() {
+    divElements.forEach(function(div) {
+      div.style.backgroundColor = "#171717";
+      div.style.color = "white";
+    });
+  }
+
+  // Renkleri geri yükleme fonksiyonu
+  function restoreColors() {
+    divElements.forEach(function(div) {
+      div.style.backgroundColor = "#ffffff";
+      div.style.color = "black";
+    });
+  }
+
+  function teburu() {
+    divElements2.forEach(function(div) {
+      div.style.backgroundColor = "rgb(255, 255, 240)";
+      div.style.color = "black";
+    });
+  }
+
+  function heddo1() {
+    heds.forEach(function(div) {
+        div.style.backgroundColor = "#3a3a3a";
+        div.style.color = "white";
+    });
+  }
+
+  function heddo2() {
+    heds.forEach(function(div) {
+        div.style.backgroundColor = "#f1f1f1";
+        div.style.color = "black";
+    });
+  }
+
+  function slopi() {
+    slop.forEach(function(div) {
+        div.style.border = "1px solid black";
+    });
+  }
+
+  function slopi2() {
+    slop.forEach(function(div) {
+        div.style.border = "1px solid white";
+    });
+  }
+
+  // Checkbox'ın durumuna göre renkleri değiştir veya geri yükle
+  if (backgroundSwitch.checked) {
+    changeColors();
+    heddo1();
+    slopi2()
+  } else {
+    if (!backgroundSwitch.checked) {
+      restoreColors();
+      teburu();
+      heddo2();
+      slopi();
+    }
+  }
+}
+
+</script>
+
+</body>
+</html>
